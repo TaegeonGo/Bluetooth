@@ -1,23 +1,23 @@
 package com.example.kimhyeongmin.bluetooth;
 
-import android.app.Activity;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.CompoundButton;
+import android.view.ViewGroup;
 import android.widget.RelativeLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,29 +27,27 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Fragment {
 
 
     private static final String TAG = "bluetooth2";
 
     SwitchCompat btnLed1, btnLed2, btnLed3;
-    Button bbtn;
     TextView txtArduino;
     RelativeLayout rlayout;
     Handler h;
 
+    final int RECIEVE_MESSAGE = 1;
 
-    private String receiveData;
-    String kingLaino = "20:16:07:14:38:28";
-
-    private String inputData;
-
-    final int RECIEVE_MESSAGE = 1;        // Status  for Handler
     private BluetoothAdapter btAdapter = null;
     private BluetoothSocket btSocket = null;
     private StringBuilder sb = new StringBuilder();
     private static int flag = 0;
 
+    private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
+
+    private BluetoothAdapter mBluetoothAdapter;
     private ConnectedThread mConnectedThread;
 
     // SPP UUID service
@@ -59,78 +57,44 @@ public class MainActivity extends Activity {
 
     private static String address = "20:16:07:14:38:28";
 
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        setContentView(R.layout.activity_main);
+        final View convertView = inflater.inflate(R.layout.activity_main, container, false);
 
-        Log.d("TAG" , "GetData : ");
-        btnLed1 = (SwitchCompat) findViewById(R.id.btnLed1);
-        btnLed2 = (SwitchCompat) findViewById(R.id.btnLed2);
-        btnLed3 = (SwitchCompat) findViewById(R.id.btnLed3);
-        bbtn = (Button) findViewById(R.id.btnPado);
 
-        txtArduino = (TextView) findViewById(R.id.txtArduino);
-        rlayout = (RelativeLayout) findViewById(R.id.layout);
+        init(convertView);
+
         h = new Handler() {
             public void handleMessage(android.os.Message msg) {
                 switch (msg.what) {
                     case RECIEVE_MESSAGE:
                         byte[] readBuf = (byte[]) msg.obj;
                         String strIncom = new String(readBuf, 0, msg.arg1);
-                        txtArduino.setText(strIncom);
+
+                        if (strIncom == "a") ;
+                        if (strIncom == "b") ;
+                        if (strIncom == "c") ;
+                        if (strIncom == "d") ;
+
                         sb.append(strIncom);
                         break;
                 }
-            };
+            }
         };
-
         btAdapter = BluetoothAdapter.getDefaultAdapter();       // get Bluetooth adapter
         checkBTState();
 
-        btnLed1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b == true){
-                    mConnectedThread.write("c");
-                }else if (b == false){
-                    mConnectedThread.write("f");
-                }
-            }
-        });
 
-        btnLed2.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b == true){
-                    mConnectedThread.write("b");
-                }else if (b == false){
-                    mConnectedThread.write("e");
-                }
-            }
-        });
 
-        btnLed3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b == true){
-                    mConnectedThread.write("a");
-                }else if (b == false){
-                    mConnectedThread.write("d");
-                }
-            }
-        });
-        bbtn.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                MainActivity.this.onResume();
-            }
-        });
+        return convertView;
 
     }
 
     private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
+
+
         if(Build.VERSION.SDK_INT >= 10){
             try {
                 final Method m = device.getClass().getMethod("createInsecureRfcommSocketToServiceRecord", new Class[] { UUID.class });
@@ -144,6 +108,7 @@ public class MainActivity extends Activity {
 
     @Override
     public void onResume() {
+
         super.onResume();
 
         Log.d(TAG, "...onResume - try connect...");
@@ -161,6 +126,7 @@ public class MainActivity extends Activity {
         } catch (IOException e) {
             errorExit("Fatal Error", "In onResume() and socket create failed: " + e.getMessage() + ".");
         }
+
 
         // Discovery is resource intensive.  Make sure it isn't going on
         // when you attempt to connect and pass your message.
@@ -216,9 +182,17 @@ public class MainActivity extends Activity {
     }
 
     private void errorExit(String title, String message){
-        Toast.makeText(getBaseContext(), title + " - " + message, Toast.LENGTH_LONG).show();
-        finish();
+        Toast.makeText(getActivity().getBaseContext(), title + " - " + message, Toast.LENGTH_LONG).show();
+        getActivity().finish();
     }
+
+    public void init(View view){
+
+        pref = getActivity().getSharedPreferences("money", Context.MODE_PRIVATE);
+        editor = pref.edit();
+
+    }
+
 
     private class ConnectedThread extends Thread {
         private final InputStream mmInStream;
@@ -267,5 +241,4 @@ public class MainActivity extends Activity {
             }
         }
     }
-
 }
