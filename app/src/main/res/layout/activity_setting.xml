@@ -6,4 +6,8 @@
     android:layout_height="match_parent"
     tools:context="com.example.kimhyeongmin.bluetooth.SettingActivity">
 
+    <ListView
+        android:id="@+id/settingList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></ListView>
 </android.support.constraint.ConstraintLayout>

@@ -5,9 +5,11 @@ import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -32,16 +34,16 @@ public class ExpenditureActivity extends Fragment {
 
         int j = preflog.getAll().size() / 3;
 
-        preflog.getString("status","statsu");
+        preflog.getString("status","status");
         preflog.getString("time", "time");
         preflog.getInt("money", 0);
 
-        for (int i = 0; i < j ; i++){
+        for (int i = j-1; i >= 0 ; i--){
             ListViewItem listViewItem = new ListViewItem();
 
-            listViewItem.date = preflog.getString("time", "time");
-            listViewItem.status = preflog.getString("status","statsu");
-            listViewItem.money = String.valueOf(preflog.getInt("money", 0));
+            listViewItem.date = preflog.getString("time" + String.valueOf(i), "time");
+            listViewItem.status = preflog.getString("status" + String.valueOf(i),"status");
+            listViewItem.money = preflog.getInt("money" + String.valueOf(i), 10);
 
             arrayList.add(listViewItem);
         }
@@ -50,6 +52,13 @@ public class ExpenditureActivity extends Fragment {
         ListAdapter listAdapter = new ListViewAdapter(arrayList);
         mListview.setAdapter(listAdapter);
 
+        mListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                refresh();
+            }
+        });
+
 
         return convertView;
     }
@@ -57,5 +66,10 @@ public class ExpenditureActivity extends Fragment {
     private void init() {
         preflog = getActivity().getSharedPreferences("spendlog", Context.MODE_PRIVATE);
         logedit = preflog.edit();
+    }
+
+    public void refresh(){
+        android.support.v4.app.FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.detach(this).attach(this).commit();
     }
 }

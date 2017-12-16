@@ -8,6 +8,6 @@ public class ListViewItem {
 
     public String status;
     public String date;
-    public String money;
+    public int money;
 
 }

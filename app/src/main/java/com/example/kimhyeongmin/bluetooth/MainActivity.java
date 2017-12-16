@@ -1,10 +1,12 @@
 package com.example.kimhyeongmin.bluetooth;
 
 
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -37,7 +39,6 @@ public class MainActivity extends Fragment {
     TextView obakCnt, bakCnt, oshipCnt, shipCnt, totalMoneyCnt;
 
     Handler h;
-    Handler timer;
 
 
     final int RECIEVE_MESSAGE = 1;
@@ -66,7 +67,7 @@ public class MainActivity extends Fragment {
 
     private static String address = "20:16:07:14:38:28";
 
-    int obak = 0, bak =0 , oship = 0, ship = 0;
+    int obak = 1, bak =1 , oship = 1, ship = 1;
 
 
     @Override
@@ -76,14 +77,12 @@ public class MainActivity extends Fragment {
 
         init(convertView);
 
-
-
         Log.d("now Time" , getTime);
-
 
         Log.d("hisprefCount",String.valueOf(hispref.getAll().size()));
 
         if (hispref.getAll().size() == 0){
+
             hisedit.putInt("500cnt", 0);
             hisedit.putInt("100cnt", 0);
             hisedit.putInt("50cnt", 0);
@@ -102,11 +101,6 @@ public class MainActivity extends Fragment {
 
         }
 
-        obakCnt.setText("500원\n" + hispref.getInt("500cnt", 10) + "개");
-        bakCnt.setText("100원\n" + hispref.getInt("100cnt", 20) + "개");
-        oshipCnt.setText("50원\n" + hispref.getInt("50cnt", 30) + "개");
-        shipCnt.setText("10원\n" + hispref.getInt("10cnt", 40) + "개");
-        totalMoneyCnt.setText(hispref.getInt("TotalMoney", 100) + "원");
 
         h = new Handler() {
             public void handleMessage(android.os.Message msg) {
@@ -115,64 +109,64 @@ public class MainActivity extends Fragment {
                         byte[] readBuf = (byte[]) msg.obj;
                         String strIncom = new String(readBuf, 0, msg.arg1);
 
+                        Log.d("strIncom",strIncom);
 
+                        if (strIncom.equals("a")){
+                            Log.d("strInCom a" , strIncom);
 
-                        if (flag == false && strIncom.equals("a") || strIncom.equals("b") || strIncom.equals("c") || strIncom.equals("d")){
-
-                            flag = true;
-
-                            timer = new Handler(){
-                                public void handleMessage(Message msg)
-                                {
-                                    flag = false;
-
-                                    int k = Integer.valueOf(count.getString("count","count")) + 1;
-                                    countedit.putString("count", String.valueOf(k));
-                                    countedit.commit();
-
-                                    logedit.putString("time"+count.getString("count","count"), getTime);
-                                    logedit.putString("status"+count.getString("count","count"), "돈들어왔다");
-                                    logedit.putInt("money"+count.getString("count","count"), (obak * 500) + (bak * 100) + (oship * 50) + (ship * 10));
-                                    logedit.commit();
-
-                                    timer.sendEmptyMessage(30000);
-
-                                }
-                            };
-
-                        }
-
-                        if (strIncom == "a"){
-                            ++obak;
-                            hisedit.putInt("500cnt", Integer.valueOf(obakCnt.getText().toString()) + obak);
+                            hisedit.putInt("500cnt", hispref.getInt("500cnt", 10) +  obak);
                             hisedit.commit();
-                            obakCnt.setText(hispref.getInt("500cnt",0) + "개");
-                            refresh();
+                            logedit.putInt("money"+count.getString("count","count"), hispref.getInt("TotalMoney",0) + (hispref.getInt("500cnt", 10) * 500) + (hispref.getInt("100cnt", 10) * 100) + (hispref.getInt("50cnt", 10) * 50) + (hispref.getInt("10cnt", 10) * 10));
+                            logedit.putString("time"+count.getString("count","count"), getTime);
+                            logedit.putString("status"+count.getString("count","count"), "돈들어왔다");
+                            logedit.commit();
+                            int k = Integer.valueOf(count.getString("count","count")) + 1;
+                            countedit.putString("count", String.valueOf(k));
+                            countedit.commit();
+                            obakCnt.setText("500원\n" +hispref.getInt("500cnt",0) + "개");
+
+                        }else if (strIncom.equals("b")){
+                            Log.d("strInCom b" , strIncom);
+                            hisedit.putInt("100cnt", hispref.getInt("100cnt", 10) +  bak);
+                            hisedit.commit();
+                            logedit.putInt("money"+count.getString("count","count"), hispref.getInt("TotalMoney",0) + (hispref.getInt("500cnt", 10) * 500) + (hispref.getInt("100cnt", 10) * 100) + (hispref.getInt("50cnt", 10) * 50) + (hispref.getInt("10cnt", 10) * 10));
+                            logedit.putString("time"+count.getString("count","count"), getTime);
+                            logedit.putString("status"+count.getString("count","count"), "돈들어왔다");
+                            logedit.commit();
+                            int k = Integer.valueOf(count.getString("count","count")) + 1;
+                            countedit.putString("count", String.valueOf(k));
+                            countedit.commit();
+                            bakCnt.setText("100원\n" +hispref.getInt("100cnt",0) + "개");
+
+                        }else if (strIncom.equals("c")){
+                            Log.d("strInCom c" , strIncom);
+                            hisedit.putInt("50cnt", hispref.getInt("50cnt", 10) +  oship);
+                            hisedit.commit();
+                            logedit.putInt("money"+count.getString("count","count"), hispref.getInt("TotalMoney",0) + (hispref.getInt("500cnt", 10) * 500) + (hispref.getInt("100cnt", 10) * 100) + (hispref.getInt("50cnt", 10) * 50) + (hispref.getInt("10cnt", 10) * 10));
+                            logedit.putString("time"+count.getString("count","count"), getTime);
+                            logedit.putString("status"+count.getString("count","count"), "돈들어왔다");
+                            logedit.commit();
+                            int k = Integer.valueOf(count.getString("count","count")) + 1;
+                            countedit.putString("count", String.valueOf(k));
+                            countedit.commit();
+                            oshipCnt.setText("50원\n" +hispref.getInt("50cnt",0) + "개");
+
+                        }else if (strIncom.equals("d")){
+                            Log.d("strInCom d" , strIncom);
+                            hisedit.putInt("10cnt", hispref.getInt("10cnt", 10) +  ship);
+                            hisedit.commit();
+                            logedit.putInt("money"+count.getString("count","count"), hispref.getInt("TotalMoney",0) + (hispref.getInt("500cnt", 10) * 500) + (hispref.getInt("100cnt", 10) * 100) + (hispref.getInt("50cnt", 10) * 50) + (hispref.getInt("10cnt", 10) * 10));
+                            logedit.putString("time"+count.getString("count","count"), getTime);
+                            logedit.putString("status"+count.getString("count","count"), "돈들어왔다");
+                            logedit.commit();
+                            int k = Integer.valueOf(count.getString("count","count")) + 1;
+                            countedit.putString("count", String.valueOf(k));
+                            countedit.commit();
+                            shipCnt.setText("10원\n" +hispref.getInt("10cnt",0) + "개");
 
                         }
-                        if (strIncom == "b"){
-                            ++bak;
-                            hisedit.putInt("100cnt", Integer.valueOf(obakCnt.getText().toString()) + bak);
-                            hisedit.commit();
-                            bakCnt.setText(hispref.getInt("100cnt",0) + "개");
-                            refresh();
-                        }
-                        if (strIncom == "c"){
-                            ++oship;
-                            hisedit.putInt("50cnt", Integer.valueOf(obakCnt.getText().toString()) + obak);
-                            hisedit.commit();
-                            oshipCnt.setText(hispref.getInt("50cnt",0) + "개");
-                            refresh();
-                        }
-                        if (strIncom == "d"){
-                            ++ship;
-                            hisedit.putInt("10cnt", Integer.valueOf(obakCnt.getText().toString()) + obak);
-                            hisedit.commit();
-                            shipCnt.setText(hispref.getInt("10cnt",0) + "개");
-                            refresh();
-                        }
 
-                        totalMoneyCnt.setText(String.valueOf(hispref.getInt("TotalMoney",0) + (obak * 500) + (bak * 100) + (oship * 50) + (ship * 10)) + " 원");
+                        totalMoneyCnt.setText(String.valueOf(hispref.getInt("TotalMoney",0) + (hispref.getInt("500cnt", 10) * 500) + (hispref.getInt("100cnt", 10) * 100) + (hispref.getInt("50cnt", 10) * 50) + (hispref.getInt("10cnt", 10) * 10)) + " 원");
 
                         sb.append(strIncom);
                         break;
@@ -180,6 +174,88 @@ public class MainActivity extends Fragment {
             }
         };
 
+        obakCnt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mConnectedThread.write("a");
+            }
+        });
+        bakCnt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mConnectedThread.write("b");
+            }
+        });
+        oshipCnt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mConnectedThread.write("c");
+            }
+        });
+        shipCnt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mConnectedThread.write("d");
+            }
+        });
+
+        obakCnt.setText("500원\n" + hispref.getInt("500cnt", 10) + "개");
+        bakCnt.setText("100원\n" + hispref.getInt("100cnt", 20) + "개");
+        oshipCnt.setText("50원\n" + hispref.getInt("50cnt", 30) + "개");
+        shipCnt.setText("10원\n" + hispref.getInt("10cnt", 40) + "개");
+
+        totalMoneyCnt.setText(String.valueOf(hispref.getInt("TotalMoney",0) + (hispref.getInt("500cnt", 10) * 500) + (hispref.getInt("100cnt", 10) * 100) + (hispref.getInt("50cnt", 10) * 50) + (hispref.getInt("10cnt", 10) * 10)) + " 원");
+
+
+        totalMoneyCnt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
+
+                        alertDialog.setMessage("저금통을 열으시겠습니까?");
+                        alertDialog.setPositiveButton("아니요", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        });
+                        alertDialog.setNegativeButton("네", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+
+
+                                mConnectedThread.write("A");
+
+                                logedit.putString("time"+count.getString("count","count"), getTime);
+                                logedit.putString("status"+count.getString("count","count"), "돈나갔다");
+                                logedit.putInt("money"+count.getString("count","count"), hispref.getInt("TotalMoney",0) + (hispref.getInt("500cnt", 10) * 500) + (hispref.getInt("100cnt", 10) * 100) + (hispref.getInt("50cnt", 10) * 50) + (hispref.getInt("10cnt", 10) * 10));
+                                logedit.commit();
+
+                                hisedit.putInt("500cnt", 0);
+                                hisedit.putInt("100cnt", 0);
+                                hisedit.putInt("50cnt", 0);
+                                hisedit.putInt("10cnt", 0);
+                                hisedit.putInt("TotalMoney",0);
+                                hisedit.commit();
+
+                                int k = Integer.valueOf(count.getString("count","count")) + 1;
+                                countedit.putString("count", String.valueOf(k));
+                                countedit.commit();
+
+
+
+                                obakCnt.setText("500원\n" +hispref.getInt("500cnt",0) + "개");
+                                bakCnt.setText("100원\n" +hispref.getInt("100cnt",0) + "개");
+                                oshipCnt.setText("50원\n" +hispref.getInt("50cnt",0) + "개");
+                                shipCnt.setText("10원\n" +hispref.getInt("10cnt",0) + "개");
+                                totalMoneyCnt.setText(String.valueOf(hispref.getInt("TotalMoney",0) + (hispref.getInt("500cnt", 10) * 500) + (hispref.getInt("100cnt", 10) * 100) + (hispref.getInt("50cnt", 10) * 50) + (hispref.getInt("10cnt", 10) * 10)) + " 원");
+
+                            }
+                        }).show();
+
+            }
+        });
         btAdapter = BluetoothAdapter.getDefaultAdapter();       // get Bluetooth adapter
         checkBTState();
 
@@ -189,6 +265,14 @@ public class MainActivity extends Fragment {
 
     }
 
+    Handler timer = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+
+
+            flag=false;
+        }
+    };
 
 
     private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
@@ -353,8 +437,5 @@ public class MainActivity extends Fragment {
             }
         }
     }
-    public void refresh(){
-        android.support.v4.app.FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.detach(this).attach(this).commit();
-    }
+
 }

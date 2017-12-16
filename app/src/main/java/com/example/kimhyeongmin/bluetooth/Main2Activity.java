@@ -80,7 +80,9 @@ public class Main2Activity extends AppCompatActivity {
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        /*        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,7 +90,7 @@ public class Main2Activity extends AppCompatActivity {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
-                mainActivity.mConnectedThread.write("rentalABC");
+                mainActivity.mConnectedThread.write("A");
 
                 hisedit.putInt("500cnt", 0);
                 hisedit.putInt("100cnt", 0);
@@ -109,6 +111,7 @@ public class Main2Activity extends AppCompatActivity {
 
             }
         });
+        */
 
     }
 

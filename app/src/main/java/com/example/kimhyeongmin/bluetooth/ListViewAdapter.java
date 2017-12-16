@@ -64,7 +64,7 @@ public class ListViewAdapter extends BaseAdapter {
 
         statusText.setText(mListData.get(position).status);
         dateText.setText(mListData.get(position).date);
-        moneyText.setText(mListData.get(position).money);
+        moneyText.setText(String.valueOf(mListData.get(position).money));
 
         return convertView;
     }
