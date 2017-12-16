@@ -33,9 +33,12 @@ public class MainActivity extends Activity {
     private static final String TAG = "bluetooth2";
 
     SwitchCompat btnLed1, btnLed2, btnLed3;
+    Button bbtn;
     TextView txtArduino;
     RelativeLayout rlayout;
     Handler h;
+
+    private String inputData;
 
     final int RECIEVE_MESSAGE = 1;        // Status  for Handler
     private BluetoothAdapter btAdapter = null;
@@ -50,7 +53,7 @@ public class MainActivity extends Activity {
 
     // MAC-address of Bluetooth module (you must edit this line)
 
-    private static String address = "20:16:07:14:38:28";
+    private static String address = "20:17:03:29:14:24";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,9 +61,11 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.activity_main);
 
+        Log.d("TAG" , "GetData : " + inputData);
         btnLed1 = (SwitchCompat) findViewById(R.id.btnLed1);
         btnLed2 = (SwitchCompat) findViewById(R.id.btnLed2);
         btnLed3 = (SwitchCompat) findViewById(R.id.btnLed3);
+        bbtn = (Button) findViewById(R.id.btnPado);
 
         txtArduino = (TextView) findViewById(R.id.txtArduino);
         rlayout = (RelativeLayout) findViewById(R.id.layout);
@@ -111,6 +116,13 @@ public class MainActivity extends Activity {
                 }
             }
         });
+        bbtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity.this.onResume();
+            }
+        });
+
     }
 
     private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
@@ -220,10 +232,12 @@ public class MainActivity extends Activity {
 
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
+
+            inputData = tmpIn.toString();
         }
 
         public void run() {
-            byte[] buffer = new byte[256];  // buffer store for the stream
+            byte[] buffer = new byte[1];  // buffer store for the stream
             int bytes; // bytes returned from read()
 
             // Keep listening to the InputStream until an exception occurs
