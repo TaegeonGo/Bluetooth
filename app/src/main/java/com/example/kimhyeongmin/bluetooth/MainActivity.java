@@ -38,6 +38,10 @@ public class MainActivity extends Activity {
     RelativeLayout rlayout;
     Handler h;
 
+
+    private String receiveData;
+    String kingLaino = "20:16:07:14:38:28";
+
     private String inputData;
 
     final int RECIEVE_MESSAGE = 1;        // Status  for Handler
@@ -53,7 +57,7 @@ public class MainActivity extends Activity {
 
     // MAC-address of Bluetooth module (you must edit this line)
 
-    private static String address = "20:17:03:29:14:24";
+    private static String address = "20:16:07:14:38:28";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,7 +65,7 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.activity_main);
 
-        Log.d("TAG" , "GetData : " + inputData);
+        Log.d("TAG" , "GetData : ");
         btnLed1 = (SwitchCompat) findViewById(R.id.btnLed1);
         btnLed2 = (SwitchCompat) findViewById(R.id.btnLed2);
         btnLed3 = (SwitchCompat) findViewById(R.id.btnLed3);
@@ -75,6 +79,7 @@ public class MainActivity extends Activity {
                     case RECIEVE_MESSAGE:
                         byte[] readBuf = (byte[]) msg.obj;
                         String strIncom = new String(readBuf, 0, msg.arg1);
+                        txtArduino.setText(strIncom);
                         sb.append(strIncom);
                         break;
                 }
@@ -232,8 +237,6 @@ public class MainActivity extends Activity {
 
             mmInStream = tmpIn;
             mmOutStream = tmpOut;
-
-            inputData = tmpIn.toString();
         }
 
         public void run() {
@@ -246,6 +249,7 @@ public class MainActivity extends Activity {
                     // Read from the InputStream
                     bytes = mmInStream.read(buffer);        // Get number of bytes and message in "buffer"
                     h.obtainMessage(RECIEVE_MESSAGE, bytes, -1, buffer).sendToTarget();     // Send to message queue Handler
+
                 } catch (IOException e) {
                     break;
                 }
