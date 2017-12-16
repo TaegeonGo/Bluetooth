@@ -12,13 +12,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -32,9 +29,6 @@ public class MainActivity extends Fragment {
 
     private static final String TAG = "bluetooth2";
 
-    SwitchCompat btnLed1, btnLed2, btnLed3;
-    TextView txtArduino;
-    RelativeLayout rlayout;
     Handler h;
 
     final int RECIEVE_MESSAGE = 1;
@@ -72,11 +66,6 @@ public class MainActivity extends Fragment {
                     case RECIEVE_MESSAGE:
                         byte[] readBuf = (byte[]) msg.obj;
                         String strIncom = new String(readBuf, 0, msg.arg1);
-
-                        if (strIncom == "a") ;
-                        if (strIncom == "b") ;
-                        if (strIncom == "c") ;
-                        if (strIncom == "d") ;
 
                         sb.append(strIncom);
                         break;
@@ -214,7 +203,7 @@ public class MainActivity extends Fragment {
         }
 
         public void run() {
-            byte[] buffer = new byte[1024];  // buffer store for the stream
+            byte[] buffer = new byte[1];  // buffer store for the stream
             int bytes; // bytes returned from read()
 
             // Keep listening to the InputStream until an exception occurs
