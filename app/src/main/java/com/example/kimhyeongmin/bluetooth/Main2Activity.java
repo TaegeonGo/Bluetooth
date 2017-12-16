@@ -1,5 +1,7 @@
 package com.example.kimhyeongmin.bluetooth;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -16,7 +18,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.net.ConnectException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Main2Activity extends AppCompatActivity {
+
+
+    MainActivity mainActivity = new MainActivity();
+
+    private SharedPreferences hispref,preflog,count;
+    private SharedPreferences.Editor hisedit, logedit,countedit;
+
+    private long now = System.currentTimeMillis();
+    Date date = new Date(now);
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd:hh:mm");
+    String getTime = sdf.format(date);
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -38,6 +55,16 @@ public class Main2Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
 
+        hispref = getSharedPreferences("moneyhistory", Context.MODE_PRIVATE);
+        hisedit = hispref.edit();
+
+        preflog = getSharedPreferences("spendlog", Context.MODE_PRIVATE);
+        logedit = preflog.edit();
+
+        count = getSharedPreferences("count",Context.MODE_PRIVATE);
+        countedit = count.edit();
+
+
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -53,7 +80,6 @@ public class Main2Activity extends AppCompatActivity {
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-        /*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         fab.setOnClickListener(new View.OnClickListener() {
@@ -61,9 +87,28 @@ public class Main2Activity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+
+                mainActivity.mConnectedThread.write("rentalABC");
+
+                hisedit.putInt("500cnt", 0);
+                hisedit.putInt("100cnt", 0);
+                hisedit.putInt("50cnt", 0);
+                hisedit.putInt("10cnt", 0);
+                logedit.putInt("money"+count.getString("count","count"), hispref.getInt("TotalMoney",0));
+                hisedit.putInt("TotalMoney",0);
+                hisedit.commit();
+
+                int k = Integer.valueOf(count.getString("count","count")) + 1;
+                countedit.putString("count", String.valueOf(k));
+                countedit.commit();
+
+                logedit.putString("time"+count.getString("count","count"), getTime);
+                logedit.putString("status"+count.getString("count","count"), "돈나갔다");
+                logedit.commit();
+
+
             }
         });
-         */
 
     }
 

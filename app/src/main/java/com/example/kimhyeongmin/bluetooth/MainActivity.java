@@ -10,18 +10,23 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 
 public class MainActivity extends Fragment {
@@ -29,20 +34,30 @@ public class MainActivity extends Fragment {
 
     private static final String TAG = "bluetooth2";
 
+    TextView obakCnt, bakCnt, oshipCnt, shipCnt, totalMoneyCnt;
+
     Handler h;
+    Handler timer;
+
 
     final int RECIEVE_MESSAGE = 1;
 
     private BluetoothAdapter btAdapter = null;
     private BluetoothSocket btSocket = null;
     private StringBuilder sb = new StringBuilder();
-    private static int flag = 0;
+    private static boolean flag = false;
 
-    private SharedPreferences pref;
-    private SharedPreferences.Editor editor;
+    private long now = System.currentTimeMillis();
+    Date date = new Date(now);
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd:hh:mm");
+    String getTime = sdf.format(date);
+
+    private SharedPreferences hispref,preflog,count;
+    private SharedPreferences.Editor hisedit, logedit,countedit;
+
 
     private BluetoothAdapter mBluetoothAdapter;
-    private ConnectedThread mConnectedThread;
+    public ConnectedThread mConnectedThread;
 
     // SPP UUID service
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -51,14 +66,47 @@ public class MainActivity extends Fragment {
 
     private static String address = "20:16:07:14:38:28";
 
+    int obak = 0, bak =0 , oship = 0, ship = 0;
+
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         final View convertView = inflater.inflate(R.layout.activity_main, container, false);
 
-
         init(convertView);
+
+
+
+        Log.d("now Time" , getTime);
+
+
+        Log.d("hisprefCount",String.valueOf(hispref.getAll().size()));
+
+        if (hispref.getAll().size() == 0){
+            hisedit.putInt("500cnt", 0);
+            hisedit.putInt("100cnt", 0);
+            hisedit.putInt("50cnt", 0);
+            hisedit.putInt("10cnt", 0);
+            hisedit.putInt("TotalMoney",0);
+            hisedit.commit();
+
+            countedit.putString("count","0");
+            countedit.commit();
+
+            logedit.putString("time"+count.getString("count","count"), getTime);
+            logedit.putString("status"+count.getString("count","count"), "돈들어왔다");
+            logedit.putInt("money"+count.getString("count","count"), (obak * 500) + (bak * 100) + (oship * 50) + (ship * 10));
+            logedit.commit();
+
+
+        }
+
+        obakCnt.setText("500원\n" + hispref.getInt("500cnt", 10) + "개");
+        bakCnt.setText("100원\n" + hispref.getInt("100cnt", 20) + "개");
+        oshipCnt.setText("50원\n" + hispref.getInt("50cnt", 30) + "개");
+        shipCnt.setText("10원\n" + hispref.getInt("10cnt", 40) + "개");
+        totalMoneyCnt.setText(hispref.getInt("TotalMoney", 100) + "원");
 
         h = new Handler() {
             public void handleMessage(android.os.Message msg) {
@@ -67,11 +115,71 @@ public class MainActivity extends Fragment {
                         byte[] readBuf = (byte[]) msg.obj;
                         String strIncom = new String(readBuf, 0, msg.arg1);
 
+
+
+                        if (flag == false && strIncom.equals("a") || strIncom.equals("b") || strIncom.equals("c") || strIncom.equals("d")){
+
+                            flag = true;
+
+                            timer = new Handler(){
+                                public void handleMessage(Message msg)
+                                {
+                                    flag = false;
+
+                                    int k = Integer.valueOf(count.getString("count","count")) + 1;
+                                    countedit.putString("count", String.valueOf(k));
+                                    countedit.commit();
+
+                                    logedit.putString("time"+count.getString("count","count"), getTime);
+                                    logedit.putString("status"+count.getString("count","count"), "돈들어왔다");
+                                    logedit.putInt("money"+count.getString("count","count"), (obak * 500) + (bak * 100) + (oship * 50) + (ship * 10));
+                                    logedit.commit();
+
+                                    timer.sendEmptyMessage(30000);
+
+                                }
+                            };
+
+                        }
+
+                        if (strIncom == "a"){
+                            ++obak;
+                            hisedit.putInt("500cnt", Integer.valueOf(obakCnt.getText().toString()) + obak);
+                            hisedit.commit();
+                            obakCnt.setText(hispref.getInt("500cnt",0) + "개");
+                            refresh();
+
+                        }
+                        if (strIncom == "b"){
+                            ++bak;
+                            hisedit.putInt("100cnt", Integer.valueOf(obakCnt.getText().toString()) + bak);
+                            hisedit.commit();
+                            bakCnt.setText(hispref.getInt("100cnt",0) + "개");
+                            refresh();
+                        }
+                        if (strIncom == "c"){
+                            ++oship;
+                            hisedit.putInt("50cnt", Integer.valueOf(obakCnt.getText().toString()) + obak);
+                            hisedit.commit();
+                            oshipCnt.setText(hispref.getInt("50cnt",0) + "개");
+                            refresh();
+                        }
+                        if (strIncom == "d"){
+                            ++ship;
+                            hisedit.putInt("10cnt", Integer.valueOf(obakCnt.getText().toString()) + obak);
+                            hisedit.commit();
+                            shipCnt.setText(hispref.getInt("10cnt",0) + "개");
+                            refresh();
+                        }
+
+                        totalMoneyCnt.setText(String.valueOf(hispref.getInt("TotalMoney",0) + (obak * 500) + (bak * 100) + (oship * 50) + (ship * 10)) + " 원");
+
                         sb.append(strIncom);
                         break;
                 }
             }
         };
+
         btAdapter = BluetoothAdapter.getDefaultAdapter();       // get Bluetooth adapter
         checkBTState();
 
@@ -80,6 +188,8 @@ public class MainActivity extends Fragment {
         return convertView;
 
     }
+
+
 
     private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
 
@@ -139,6 +249,7 @@ public class MainActivity extends Fragment {
 
         mConnectedThread = new ConnectedThread(btSocket);
         mConnectedThread.start();
+
     }
 
     @Override
@@ -177,13 +288,25 @@ public class MainActivity extends Fragment {
 
     public void init(View view){
 
-        pref = getActivity().getSharedPreferences("money", Context.MODE_PRIVATE);
-        editor = pref.edit();
+        hispref = getActivity().getSharedPreferences("moneyhistory", Context.MODE_PRIVATE);
+        hisedit = hispref.edit();
+
+        preflog = getActivity().getSharedPreferences("spendlog", Context.MODE_PRIVATE);
+        logedit = preflog.edit();
+
+        count = getActivity().getSharedPreferences("count",Context.MODE_PRIVATE);
+        countedit = count.edit();
+
+        obakCnt = view.findViewById(R.id.obak);
+        bakCnt = view.findViewById(R.id.bak);
+        oshipCnt = view.findViewById(R.id.oship);
+        shipCnt = view.findViewById(R.id.ship);
+        totalMoneyCnt = view.findViewById(R.id.totalMoney);
 
     }
 
 
-    private class ConnectedThread extends Thread {
+    public class ConnectedThread extends Thread {
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
 
@@ -229,5 +352,9 @@ public class MainActivity extends Fragment {
                 Log.d(TAG, "...Error data send: " + e.getMessage() + "...");
             }
         }
+    }
+    public void refresh(){
+        android.support.v4.app.FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.detach(this).attach(this).commit();
     }
 }
